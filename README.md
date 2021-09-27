@@ -1,1 +1,1 @@
-tested:  weathershopper.pythonanywhere.com
+automated:  weathershopper.pythonanywhere.com
