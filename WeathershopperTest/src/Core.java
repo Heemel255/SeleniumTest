@@ -15,7 +15,7 @@ public class Core {
 		
 		driver.manage().window().maximize();
 		driver.get("https://weathershopper.pythonanywhere.com/");
-		
+		/*
 		//first page: go to second page based on console input, or do temperature scraping
 		String input;
 		do {
@@ -33,7 +33,8 @@ public class Core {
 			tempScrape(driver, sc);
 		
 			
-		sc.close();
+		sc.close();*/
+		//changes
 		driver.close();
 	}
 	
