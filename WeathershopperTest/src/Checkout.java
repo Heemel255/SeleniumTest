@@ -8,7 +8,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-public class CheckoutTest {
+public class Checkout {
 	
 	private WebDriver wd;
 	
@@ -19,12 +19,12 @@ public class CheckoutTest {
 	private WebElement payButton;
 	private WebElement zipBox;
 	
-	public CheckoutTest(WebDriver wd)
+	public Checkout(WebDriver wd)
 	{
 		init(wd);
 	}
 	
-	public CheckoutTest(WebDriver wd, String email, String card, String expiry, String cvc, String zip)
+	public Checkout(WebDriver wd, String email, String card, String expiry, String cvc, String zip)
 	{
 		init(wd);
 		
