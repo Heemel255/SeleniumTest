@@ -1,6 +1,8 @@
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
 
@@ -10,104 +12,159 @@ public class Core {
 	{
 		System.setProperty("webdriver.chrome.driver", "C:\\selenium\\selenium-java-3.141.59\\chromedriver_win32\\chromedriver.exe");
 		
-		WebDriver driver = new ChromeDriver();
-		Scanner sc = new Scanner(System.in);
+		new Thread(run1()).start();
+		new Thread(run2()).start();
+		new Thread(run3()).start();
+		new Thread(run4()).start();
+		new Thread(run5()).start();
+	}
+	
+	public static Runnable run1()
+	{
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				WebDriver driver = new ChromeDriver();
+				init(driver);
+				
+				goToPages(driver, firstPage(driver, 1), Thread.currentThread().getName());
+				driver.close();
+			}
+		};
 		
+		return r;
+	}
+	
+	public static Runnable run2()
+	{
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				WebDriver driver = new ChromeDriver();
+				init(driver);
+				
+				goToPages(driver, firstPage(driver, 2), Thread.currentThread().getName());
+				driver.close();
+			}
+		};
+		
+		return r;
+	}
+	
+	public static Runnable run3()
+	{
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				WebDriver driver = new ChromeDriver();
+				init(driver);
+				
+				tempScrape(driver, 1, Thread.currentThread().getName());
+				driver.close();
+			}
+		};
+		
+		return r;
+	}
+	
+	public static Runnable run4()
+	{
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				WebDriver driver = new ChromeDriver();
+				init(driver);
+				
+				tempScrape(driver, 2, Thread.currentThread().getName());
+				driver.close();
+			}
+		};
+		
+		return r;
+	}
+	
+	public static Runnable run5()
+	{
+		Runnable r = new Runnable() {
+			@Override
+			public void run() {
+				WebDriver driver = new ChromeDriver();
+				init(driver); 
+				
+				tempScrape(driver, 3, Thread.currentThread().getName());
+				driver.close();
+			}
+		};
+		
+		return r;
+	}
+	
+	public static void init(WebDriver driver) 
+	{
 		driver.manage().window().maximize();
 		driver.get("https://weathershopper.pythonanywhere.com/");
-		/*
-		//first page: go to second page based on console input, or do temperature scraping
-		String input;
-		do {
-			System.out.println("Press 1 for moisturizers\nPress 2 for sunscreens\nPress 3 to scrape temperature data");
-			input = sc.nextLine();
-			
-			System.out.println(firstPage(driver, input));
-		}while(!(input.equals("1") || input.equals("2")  || input.equals("3")));
-		
-		
-		//either go to second page or measure scraped temperature
-		if(input.equals("1") || input.equals("2")) 
-			goToOtherPages(driver);
-		else
-			tempScrape(driver, sc);
-		
-			
-		sc.close();*/
-		//changes
-		driver.close();
+		driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 	}
 	
-	public static String firstPage(WebDriver wd, String choice)
+	public static WebElement firstPage(WebDriver wd, int choice)
 	{
 		WebElement nextPageBtn = null;
-		String message = null;
 		
-		if(choice.equals("1")) {
+		if(choice == 1) {
 			
 			nextPageBtn = wd.findElement((By.xpath("/html/body/div/div[3]/div[1]/a/button")));
-			message = "Moisturizer pressed";
 		}
-		else if(choice.equals("2")) {
+		else if(choice == 2) {
 			
 			nextPageBtn = wd.findElement((By.xpath("/html/body/div/div[3]/div[2]/a/button")));
-			message = "Sunscreen pressed";
-		}
-		
-		if(choice.equals("1") || choice.equals("2")) {
-			
-			nextPageBtn.click();
-			return message;
-		}
-		else if(choice.equals("3")) {
-			
-			return "Temperature scraping selected";
 		}
 			
-		return "Invalid";
+		return nextPageBtn;
 	}
 	
-	public static void goToOtherPages(WebDriver driver)
+	public static void goToPages(WebDriver driver, WebElement fp, String threadName)
 	{
+		//first page
+		fp.click();
+		
 		//second page: add first n items to cart, click cart
-		ShopPageTest mt = new ShopPageTest(driver);
+		ShopPage mt = new ShopPage(driver);
 		
 		Random rand = new Random();
 		int amt = 1 + rand.nextInt(6);
 		
 		mt.addToCart(amt);
 		
-		System.out.println("Cart price is: " + mt.getSumPricesCart(amt));
+		int cartPrice = mt.getSumPricesCart();
+		System.out.println(threadName + ": Cart price is: " + cartPrice);
 		
 		if(mt.getAmtAdded() > 1)
-			System.out.println("First " + mt.getAmtAdded() + " items added to cart");
+			System.out.println(threadName + ": First " + mt.getAmtAdded() + " items added to cart");
 		else
-			System.out.println("First item added");
+			System.out.println(threadName + ": First item added");
 		
 		mt.clickCheckout();
 		
-		//third page: click checkout, wait for it to load
+		//third page: click checkout
 		driver.findElement((By.xpath("/html/body/div[1]/div[3]/form/button/span"))).click();
 		
 		
 		//checkout box:enter info into boxes, wait for zip then enter into zip box, click submit
-		CheckoutTest ct = new CheckoutTest(driver, "test@test.com", "4242424242424242", "1122", "3333", "m1k 1x1");
-		System.out.println("Checkout price is " + ct.getCheckoutPrice());
-		System.out.println(ct.clickPay());
+		Checkout ct = new Checkout(driver, "test@test.com", "4242424242424242", "1122", "3333", "m1k 1x1");
+		
+		int checkoutPrice = ct.getCheckoutPrice();
+		System.out.println(threadName + ": Checkout price is " + checkoutPrice);
+		
+		if(checkoutPrice == cartPrice)
+			System.out.println(threadName + ": Cart price and checkout price is the same");
+		else
+			System.out.println(threadName + ": !Cart price and checkout price is the not the same!");
+			
+		System.out.println(threadName + ": " + ct.clickPay());
 	}
 	
-	public static void tempScrape(WebDriver driver, Scanner sc)
+	public static void tempScrape(WebDriver driver, int choice, String threadName)
 	{
-		String input;
-		boolean inputCorrect = false;
-		
-		do {
-			System.out.println("Press 1 to get lowest temperature\nPress 2 to get highest temperature\nPress 3 to get average temperature");
-			input = sc.nextLine();
-			inputCorrect = input.equals("1") || input.equals("2")  || input.equals("3");
-			if(!inputCorrect)
-				System.out.println("Invalid");
-		}while(!inputCorrect);
 		
 		TemperatureScrape ts = new TemperatureScrape(driver);
 		
@@ -115,19 +172,24 @@ public class Core {
 		ts.startScrape(totalTempScrapes);
 		
 		List<Integer> temps = ts.getTemps();
-		System.out.println("Temperatures list:");
 		
 		for(int i = 0;i < temps.size(); i++)
-			System.out.println(temps.get(i));
+			System.out.print(threadName + ": " + temps.get(i) + "c | ");
 		
-		if(input.equals("1")) {
-			System.out.println("Lowest temp: " + ts.getMin());
-		}
-		else if(input.equals("2")) {
-			System.out.println("Highest temp: " + ts.getMax());
-		}
-		else {
-			System.out.println("Average temp: " + ts.getAvg());
+		System.out.println();
+		switch(choice) {
+			case 1:
+				System.out.println(threadName + ": Lowest temp: " + ts.getMin());
+				break;
+			case 2:
+				System.out.println(threadName + ": Highest temp: " + ts.getMax());
+				break;
+			case 3:
+				System.out.println(threadName + ": Average temp: " + ts.getAvg());
+				break;
+			default:
+				System.out.println("N/A");
+				break;
 		}
 	}
 }
