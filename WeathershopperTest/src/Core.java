@@ -1,6 +1,5 @@
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 import org.openqa.selenium.*;
@@ -150,7 +149,8 @@ public class Core {
 		
 		
 		//checkout box:enter info into boxes, wait for zip then enter into zip box, click submit
-		Checkout ct = new Checkout(driver, "test@test.com", "4242424242424242", "1122", "3333", "m1k 1x1");
+		Checkout ct = new Checkout(driver);
+		ct.enterDetails("test@test.com", "4242424242424242", "1122", "3333", "m1k 1x1");
 		
 		int checkoutPrice = ct.getCheckoutPrice();
 		System.out.println(threadName + ": Checkout price is " + checkoutPrice);
@@ -174,7 +174,7 @@ public class Core {
 		List<Integer> temps = ts.getTemps();
 		
 		for(int i = 0;i < temps.size(); i++)
-			System.out.print(threadName + ": " + temps.get(i) + "c | ");
+			System.out.print(temps.get(i) + "c | ");
 		
 		System.out.println();
 		switch(choice) {
